@@ -307,14 +307,20 @@ function refreshEntries() {
     info.appendChild(name);
     info.appendChild(meta);
 
-    const actions = document.createElement('div');
-    actions.className = 'entry-actions';
-
     const gpLbl = document.createElement('span');
     const cached = state.gpCache[e.id];
     gpLbl.className = 'gp-label' + (cached ? '' : ' empty');
     gpLbl.textContent = cached || '—';
-    actions.appendChild(gpLbl);
+
+    // 第一行：信息在左，GP 在右
+    const main = document.createElement('div');
+    main.className = 'entry-main';
+    main.appendChild(info);
+    main.appendChild(gpLbl);
+
+    // 第二行：操作按钮在条目下方
+    const actions = document.createElement('div');
+    actions.className = 'entry-actions';
 
     const btnCalc = document.createElement('button');
     btnCalc.className = 'btn btn-mini btn-calc';
@@ -334,7 +340,7 @@ function refreshEntries() {
     btnDel.onclick = () => onDelete(e.id);
     actions.appendChild(btnDel);
 
-    row.appendChild(info);
+    row.appendChild(main);
     row.appendChild(actions);
     els.entryList.appendChild(row);
   });
