@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPA Calculator · 绩点计算器</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============ 顶栏 ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-name">GPA Calculator</span>
+      <span class="brand-ver">v1.0</span>
+    </div>
+    <div class="topbar-right">
+      <button id="saveBtn" class="btn btn-accent btn-sm" title="将当前录入的条目下载为 gpa_data.json 保存到本地">保存条目</button>
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-text" id="statusText">内存数据</span>
+    </div>
+  </header>
+
+  <!-- ============ 主体 ============ -->
+  <main class="body">
+
+    <!-- 左侧：添加/编辑表单 -->
+    <section class="panel form-panel">
+      <h2 class="section-title form-title">ADD / EDIT 条目</h2>
+
+      <div class="form-row">
+        <label class="form-label">学期</label>
+        <select id="semSelect" class="input"></select>
+      </div>
+      <div class="form-row" id="semCustomRow" style="display:none;">
+        <label class="form-label"></label>
+        <input id="semCustom" class="input" placeholder="输入自定义学期（如 大二小学期）" autocomplete="off">
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">课程名称</label>
+        <input id="courseInput" class="input" placeholder="如 高等数学A" autocomplete="off">
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">学分</label>
+        <input id="creditInput" class="input" placeholder="如 5.5" autocomplete="off">
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">计算方式</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="type" value="percent" checked> 百分制</label>
+          <label class="radio-item"><input type="radio" name="type" value="grade5"> 五级制</label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">成绩</label>
+        <input id="scoreInput" class="input input-highlight" placeholder="整数 0-100" autocomplete="off">
+        <select id="gradeSelect" class="input" style="display:none;"></select>
+      </div>
+
+      <div class="form-btns">
+        <button id="submitBtn" class="btn btn-accent">＋ 添加条目</button>
+        <button id="clearBtn" class="btn btn-outline">✕ 清空</button>
+      </div>
+
+      <div class="edit-hint" id="editHint"></div>
+      <div class="error-text" id="errorText"></div>
+    </section>
+
+    <!-- 右侧：条目列表 -->
+    <section class="panel list-panel">
+      <div class="list-head">
+        <h2 class="section-title">ENTRIES 课程条目</h2>
+        <span class="list-count" id="listCount">0 门</span>
+        <button id="calcAllBtn" class="btn btn-accent-dark btn-sm">一键计算 GP</button>
+      </div>
+      <div class="entry-list" id="entryList"></div>
+      <div class="stats-text" id="statsText"></div>
+    </section>
+
+  </main>
+
+  <!-- ============ GPA 均绩计算 ============ -->
+  <section class="panel gpa-panel">
+    <div class="gpa-head">
+      <h2 class="section-title">GPA 均绩计算</h2>
+      <button id="checkNoneBtn" class="btn btn-outline btn-sm">清空</button>
+      <button id="checkAllBtn" class="btn btn-outline btn-sm">全选</button>
+    </div>
+    <div class="gpa-checks" id="gpaChecks"></div>
+    <div class="gpa-btns">
+      <button id="calcGpaBtn" class="btn btn-accent-dark">计算 GPA</button>
+      <span class="gpa-hint" id="gpaHint">勾选一个或多个学期后计算</span>
+    </div>
+    <div class="metric-row">
+      <div class="metric-card metric-highlight"><div class="metric-title">GPA</div><div class="metric-value" id="gpaValue">0.0</div></div>
+      <div class="metric-card"><div class="metric-title">总学分</div><div class="metric-value" id="creditValue">0</div></div>
+      <div class="metric-card"><div class="metric-title">覆盖课程</div><div class="metric-value" id="courseValue">0 门</div></div>
+    </div>
+  </section>
+
+  <!-- ============ 首次使用模态 ============ -->
+  <div class="modal-mask" id="onboardingModal">
+    <div class="modal-card">
+      <div class="onboard-icon" aria-hidden="true">GPA</div>
+      <h2 class="modal-title">欢迎使用 GPA 计算器</h2>
+      <p class="modal-desc">请问您是第一次使用本工具吗？<br>首次使用将阅读免责声明；老用户可直接导入上次保存的数据文件。</p>
+      <div class="modal-btns">
+        <button id="firstUseBtn" class="btn btn-accent">首次使用</button>
+        <button id="importFirstBtn" class="btn btn-outline">导入上次数据</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 免责声明模态（无 X 关闭按钮） ============ -->
+  <div class="modal-mask" id="disclaimerModal" style="display:none;">
+    <div class="modal-card disclaimer-card">
+      <div class="disclaimer-icon" aria-hidden="true">!</div>
+      <h2 class="disclaimer-title">重要免责声明</h2>
+      <div class="disclaimer-body">
+        <p>1. 本工具仅面向北京理工大学在校生个人使用，旨在辅助估算课程绩点与 GPA。</p>
+        <p>2. 所有课程名称、学分、成绩均为用户自行手动输入，本工具不对录入数据的真实性、完整性负责。</p>
+        <p>3. 计算逻辑已尽力复刻官方公式，但因小数舍入方式、系统计算精度、浏览器差异等因素，计算结果仅供参考与估计。</p>
+        <p>4. 本工具不具任何官方效力，不可替代教务部系统生成的正式成绩单或电子凭证。一切成绩认定，请以北京理工大学教务部官方系统为准。</p>
+        <p>5. 使用本工具即视为已阅读并同意以上条款，因计算结果产生的任何争议，开发者不承担任何责任。</p>
+      </div>
+      <div class="disclaimer-choices">
+        <label class="radio-item"><input type="radio" name="disclaimer" value="accept"> 我已阅读并同意</label>
+        <label class="radio-item"><input type="radio" name="disclaimer" value="reject" checked> 我不同意，退出本站</label>
+      </div>
+      <div class="modal-btns">
+        <button id="disclaimerOkBtn" class="btn btn-danger">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 保存提醒模态（计算 GPA 前强制弹出，无 X 关闭按钮） ============ -->
+  <div class="modal-mask" id="saveRemindModal" style="display:none;">
+    <div class="modal-card save-remind-card">
+      <h2 class="save-warn-title">请务必保存条目数据到本地！</h2>
+      <p class="save-warn-desc">否则下次进入本站数据将会丢失！</p>
+      <div class="disclaimer-choices">
+        <label class="radio-item"><input type="radio" name="saveChoice" value="save" checked> 保存条目数据到本地（默认为 json 格式）</label>
+        <label class="radio-item"><input type="radio" name="saveChoice" value="nosave"> 我不保存，愿意为数据丢失承担责任</label>
+      </div>
+      <div class="modal-btns">
+        <button id="saveRemindOkBtn" class="btn btn-danger">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 通用确认模态（删除等） ============ -->
+  <div class="modal-mask" id="confirmModal" style="display:none;">
+    <div class="modal-card">
+      <h2 class="modal-title" id="confirmTitle">确认</h2>
+      <p class="modal-desc" id="confirmMsg"></p>
+      <div class="modal-btns">
+        <button id="confirmCancelBtn" class="btn btn-outline">取消</button>
+        <button id="confirmYesBtn" class="btn btn-danger">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 隐藏的文件选择器（导入 json） -->
+  <input type="file" id="fileInput" accept=".json,application/json" style="display:none;">
+
+<script src="app.js"></script>
+</body>
+</html>
