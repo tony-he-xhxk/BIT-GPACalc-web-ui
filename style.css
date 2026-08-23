@@ -301,6 +301,19 @@ select.input {
   margin-bottom: 8px;
 }
 .disclaimer-body p:last-child { margin-bottom: 0; }
+.official-link {
+  color: #8f1414;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: color .15s;
+}
+.official-link:hover {
+  color: #5c0d0d;
+  text-decoration-color: var(--danger);
+}
 .disclaimer-choices {
   display: flex; justify-content: center; gap: 30px;
   margin-bottom: 18px;
