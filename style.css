@@ -267,7 +267,16 @@ select.input {
 }
 
 /* 免责声明（红色警示，用户指定） */
-.disclaimer-card { width: min(600px, 94vw); border: 2px solid var(--danger); }
+.disclaimer-card {
+  width: min(600px, 94vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  border: 2px solid var(--danger);
+}
+.disclaimer-card::-webkit-scrollbar { width: 8px; }
+.disclaimer-card::-webkit-scrollbar-track { background: var(--bg); border-radius: 4px; }
+.disclaimer-card::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.disclaimer-card::-webkit-scrollbar-thumb:hover { background: var(--danger); }
 .disclaimer-icon {
   width: 60px; height: 60px; margin: 0 auto 14px;
   border-radius: 50%;
@@ -329,4 +338,5 @@ select.input {
   .entry-list { max-height: 300px; }
   .gpa-panel { margin: 0 16px; }
   .metric-row { flex-direction: column; }
+  .disclaimer-card { max-height: 76vh; }
 }
